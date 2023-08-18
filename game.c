@@ -4,9 +4,9 @@
 #include "board.h"
 #include "game.h"
 
-void declare_results(char** board, int num_rows, int num_cols, char blank_char, int cur_player_turn, int num_needed_in_row){
+void declare_results(char** board, int num_rows, int num_cols, char blank_char, int cur_player_turn, int num_needed_in_row, char piece){
 	print_board(board, num_rows, num_cols);
-	if(someone_won(board, num_rows, num_cols, blank_char, num_needed_in_row)){
+	if(someone_won(board, num_rows, num_cols, blank_char, num_needed_in_row, piece)){
 		printf("Player %d  Won!\n", cur_player_turn + 1);
 	}else{
 		printf("Tie game!\n");
@@ -29,13 +29,16 @@ void play_game(char** board, int rows, int cols, char blank_char,
 	while(true){
 		display_game_state(board, rows, cols);
 		get_valid_move_from_player(&row_played, &col_played, board, rows, cols, blank_char);
-		do_move(rows, col_played, board, player_pieces[*cur_player_turn], blank_char);
-		if(is_game_over(board, num_needed_in_row, rows, cols, blank_char)){
+    while(!spot_is_empty(board, rows, cols, row_played, col_played, blank_char)){
+      get_valid_move_from_player(&row_played, &col_played, board, rows, cols, blank_char);
+    }
+		do_move(row_played, col_played, board, player_pieces[*cur_player_turn], blank_char);
+		if(is_game_over(board, num_needed_in_row, rows, cols, blank_char, player_pieces[*cur_player_turn])){
 			break;
 		}
 		change_turn(cur_player_turn, num_players);
 	}
-	declare_results(board, rows, cols, blank_char, *cur_player_turn, num_needed_in_row);
+	declare_results(board, rows, cols, blank_char, *cur_player_turn, num_needed_in_row, player_pieces[*cur_player_turn]);
 }
 
 void display_game_state(char** board, int num_rows, int num_cols){
@@ -44,60 +47,58 @@ void display_game_state(char** board, int num_rows, int num_cols){
 
 bool is_valid_move(int num_args_read, int space_chosen, char** board, int rows, int cols, char blank_char){
   const int num_args_needed = 1;
-  return isValidFormat(num_args_read, num_args_needed) && is_inside_board(space_chosen, cols) &&
-				 spot_is_empty(board, rows, cols, space_chosen, blank_char);
+  return isValidFormat(num_args_read, num_args_needed) && is_inside_board(space_chosen, cols);
 }
 
 void get_valid_move_from_player(int* row_chosen, int* column_chosen, char** board, int rows, int cols, char blank_char){
 	int num_args_read;
-	do{
+  do{
 		printf("Enter a column between %d and %d to play in: ", 0, cols - 1);
 		num_args_read = scanf(" %d",  column_chosen);
 	}while(!is_valid_move(num_args_read, *column_chosen, board, rows, cols, blank_char));
-
+  do{
+		printf("Enter a row between %d and %d to play in: ", 0, rows - 1);
+		num_args_read = scanf(" %d",  row_chosen);
+	}while(!is_valid_move(num_args_read, *row_chosen, board, rows, cols, blank_char));
 }
 
-void do_move(int rows, int col, char** board, char piece, char blank_char){
-	int row = 0;
-  for(int x = 0; x < rows; ++x) {
-    if(board[x][col] == blank_char) {
-      row = x;
-      break;
-    }
+void do_move(int row, int col, char** board, char piece, char blank_char){
+	if(board[row][col] == blank_char) {
+    board[row][col] = piece;
   }
-  board[row][col] = piece;
+
 }
 
 void change_turn(int* cur_turn, int num_players){
 	*cur_turn = (*cur_turn + 1) % num_players;
 }
 
-bool is_game_over(char** board, int num_needed_in_row, int num_rows, int num_cols, char blank_char){
+bool is_game_over(char** board, int num_needed_in_row, int num_rows, int num_cols, char blank_char, char piece){
   if((num_needed_in_row > num_cols) && (num_needed_in_row > num_rows)){
     return tie_game(board, num_rows, num_cols, blank_char, num_needed_in_row);
   } else{
-    return someone_won(board, num_rows, num_cols, blank_char, num_needed_in_row) || tie_game(board, num_rows, num_cols, blank_char, num_needed_in_row);
+    return someone_won(board, num_rows, num_cols, blank_char, num_needed_in_row, piece) || tie_game(board, num_rows, num_cols, blank_char, num_needed_in_row);
   }
 }
 
-bool someone_won(char** board, int num_rows, int num_cols, char blank_char, int num_needed_in_row){
-	return someone_won_horizontally(board, num_rows, num_cols, blank_char, num_needed_in_row) ||
-				 someone_won_vertically(board, num_rows, num_cols, blank_char, num_needed_in_row) ||
+bool someone_won(char** board, int num_rows, int num_cols, char blank_char, int num_needed_in_row, char piece){
+	return someone_won_horizontally(board, num_rows, num_cols, blank_char, num_needed_in_row, piece) ||
+				 someone_won_vertically(board, num_rows, num_cols, blank_char, num_needed_in_row, piece) ||
 				 someone_won_diagonally(board, num_rows, num_cols, blank_char, num_needed_in_row);
 }
 
-bool someone_won_horizontally(char** board, int num_rows, int num_cols, char blank_char, int num_needed_in_row){
+bool someone_won_horizontally(char** board, int num_rows, int num_cols, char blank_char, int num_needed_in_row, char piece){
   for(int y = 0; y < num_rows; ++y){
-    if(all_row_same(y, board, num_rows, num_cols, num_needed_in_row, blank_char)){
+    if(all_row_same(y, board, num_rows, num_cols, num_needed_in_row, blank_char, piece)){
       return true;
     }
   }
   return false;
 }
 
-bool someone_won_vertically(char** board, int num_rows, int num_cols, char blank_char, int num_needed_in_row){
+bool someone_won_vertically(char** board, int num_rows, int num_cols, char blank_char, int num_needed_in_row, char piece){
 	for(int i = 0; i < num_cols; ++i){
-		if(all_col_same(i, board, num_rows, num_cols, num_needed_in_row, blank_char)){
+		if(all_col_same(i, board, num_rows, num_cols, num_needed_in_row, blank_char, piece)){
 			return true;
 		}
 	}

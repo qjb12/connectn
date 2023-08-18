@@ -11,11 +11,11 @@
 	bool is_valid_move(int num_args_read, int space_chosen, char** board, int rows, int cols, char blank_char);
   void do_move(int rows, int col, char** board, char piece, char blank_char);
   void change_turn(int* cur_turn, int num_players);
-  bool is_game_over(char** board, int num_needed_in_row, int num_rows, int num_cols, char blank_char);
-  bool someone_won(char** board, int num_rows, int num_cols, char blank_char, int num_needed_in_row);
-  void declare_results(char** board, int num_rows, int num_cols, char blank_char, int cur_player_turn, int num_needed_in_row);
-  bool someone_won_horizontally(char** board, int num_rows, int num_cols, char blank_char, int num_needed_in_row);
-  bool someone_won_vertically(char** board, int num_rows, int num_cols, char blank_char, int num_needed_in_row);
+  bool is_game_over(char** board, int num_needed_in_row, int num_rows, int num_cols, char blank_char, char piece);
+  bool someone_won(char** board, int num_rows, int num_cols, char blank_char, int num_needed_in_row, char piece);
+  void declare_results(char** board, int num_rows, int num_cols, char blank_char, int cur_player_turn, int num_needed_in_row, char piece);
+  bool someone_won_horizontally(char** board, int num_rows, int num_cols, char blank_char, int num_needed_in_row, char piece);
+  bool someone_won_vertically(char** board, int num_rows, int num_cols, char blank_char, int num_needed_in_row, char piece);
   bool someone_won_diagonally(char** board, int num_rows, int num_cols, char blank_char, int num_needed_in_row);
   bool someone_won_right_diagonal(char** board, int num_rows, int num_cols, char blank_char, int num_needed_in_row);
   bool right_of_main_right(char** board, int num_rows, int num_cols, char blank_char, int num_needed_in_row);
