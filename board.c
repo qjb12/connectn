@@ -62,13 +62,18 @@ bool spot_is_empty(char** board, int rows, int cols, int row, int col, char blan
   return 0;
 }
 
-bool all_row_same(int row, char** board, int num_rows, int num_cols, int num_needed_in_row, char blank_char, char piece){
+bool all_row_same(char** board, int num_rows, int num_cols, int num_needed_in_row, int row_played, int col_played){
+  char piece = board[row_played][col_played];
   int counter = 0;
   for(int y = 0; y < num_cols; ++y){
-    if(board[row][y] == piece){
+    if(board[row_played][y] == piece){
       ++counter;
     } else {
       counter = 0;
+    }
+
+    if(counter == num_needed_in_row){
+      break;
     }
 
     if(!(num_needed_in_row - counter <= num_cols - (y + 1))){
@@ -77,19 +82,24 @@ bool all_row_same(int row, char** board, int num_rows, int num_cols, int num_nee
   }
   
 	if(counter == num_needed_in_row){
-      return 1;
+      return true;
   }
-  return 0;
+  return false;
 }
 
 
-bool all_col_same(int col, char** board, int num_rows, int num_cols, int num_needed_in_row, char blank_char, char piece){
-	int counter = 0;
+bool all_col_same(char** board, int num_rows, int num_cols, int num_needed_in_row, int row_played, int col_played){
+	char piece = board[row_played][col_played];
+  int counter = 0;
   for(int y = 0; y < num_rows; ++y){
-    if(board[y][col] == piece){
+    if(board[y][col_played] == piece){
       counter++;
     } else {
       counter = 0;
+    }
+
+    if(counter == num_needed_in_row){
+      break;
     }
 
     if(!(num_needed_in_row - counter <= num_rows - (y + 1))){
@@ -98,7 +108,7 @@ bool all_col_same(int col, char** board, int num_rows, int num_cols, int num_nee
   }
 
   if(counter == num_needed_in_row){
-      return 1;
+      return true;
   }
-  return 0;
+  return false;
 }
